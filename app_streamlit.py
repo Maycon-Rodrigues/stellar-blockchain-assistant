@@ -32,21 +32,18 @@ st.set_page_config(
 def get_model_instance(provider: str, model_name: str, api_key: str):
     """Create a model instance based on provider and API key"""
     if provider == "OpenAI":
-        os.environ["OPENAI_API_KEY"] = api_key
-        return OpenAIChat(model_name)
+        return OpenAIChat(model_name, api_key=api_key)
     elif provider == "Google":
-        os.environ["GOOGLE_API_KEY"] = api_key
-        return Gemini(model_name)
+        return Gemini(model_name, api_key=api_key)
     else:
         raise ValueError(f"Provider {provider} não suportado")
 
-@st.cache_resource
-def get_agent(_model_instance):
-    """Initialize and cache the agent instance"""
+def get_agent(model_instance):
+    """Initialize the agent instance"""
     db = SqliteDb(db_file="/tmp/onchain_researcher.db")
     
     agent = Agent(
-        model=_model_instance,
+        model=model_instance,
         name=AGENT_CONFIG["name"],
         description="An AI assistant that helps users interact with the Stellar blockchain using natural language.",
         role=AGENT_CONFIG["role"],
